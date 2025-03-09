@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Stop Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand">One Stop Shop</a>
+            <div class="d-flex">
+                {% if "user" not in session %}
+                <button type="button" class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#registerModal">Register as owner</button>
+                <button type="button" class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#registerModal2">Register as customer</button>
+                <button type="button" class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+                <button type="button" class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal2">Login As Customer</button>
+                {% elif "user" in session and session["user"]["isowner"]==False %}
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">View cart (0)</button>
+                <a href="/logout" class="btn btn-danger">Logout</a>
+                {% else %}
+                <a href="/logout" class="btn btn-danger">Logout</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <div class="card mb-4">
+            <div class="card-header text-center">
+                <h5>Stores</h5>
+            </div>
+            <div class="card-body text-center">
+                {% if shops|length <=0 %}
+                <p class="text-muted">No Shops available.</p>
+                {% else %}
+                    {% for shop in shops %}
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">{{ shop.get('name_of_shop') }}</h5>
+                                <p class="card-text">{{ shop.get('name_of_owner') }}</p>
+                                    <div class="input-group mb-3">
+                                        <a class="btn btn-success">View Shop</a>
+                                    </div>
+                        </div>
+                            {% endfor %}
+                            {% endif %}
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header text-center">
+                <h5>All Products</h5>
+            </div>
+            <div class="card-body text-center">
+                {% if product|length <=0 %}
+                <p class="text-muted">No Products available.</p>
+                {% else %}
+                    {% for producta in product %}
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">{{ producta.get('product_name') }}</h5>
+                                <p class="card-text">Price: {{ producta.get('product_price') }}</p>
+                                <p class="card-text">Description: {{ producta.get('product_description') }}</p>
+                                <p class="card-text"><img src= "{{ producta.get('product_image')}}" style="width: 20vw; min-width: 20px;"></p>
+                                <p>--------------------------------------</p>
+                                <p class="card-text">Quantity: {{ producta.get('product_quantity') }}</p>
+                                    <div class="input-group mb-3">
+                                        {% if "user" in session and session["user"]["isowner"]==False %}
+                                        <a class="btn btn-success">Add to cart</a>
+                                        {% endif %}
+                                    </div>
+                        </div>
+                            {% endfor %}
+                            {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel">Register Here</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/register" method="POST">
+                    <div class="modal-body">
+                        <input type="text" class="form-control mb-2" name="name_of_shop" placeholder="Shop Name" required>
+                        <input type="text" class="form-control mb-2" name="name_of_owner" placeholder="Owner Name" required>
+                        <input type="email" class="form-control mb-2" name="email" placeholder="Email" required>
+                        <input type="text" class="form-control mb-2" name="contact" placeholder="Contact" required>
+                        <input type="password" class="form-control mb-2" name="password" placeholder="Password" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Sign up</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="registerModal2" tabindex="-1" aria-labelledby="registerModalLabel2" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel2">Register Here</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/register_as_customer" method="POST">
+                    <div class="modal-body">
+                        <input type="text" class="form-control mb-2" name="name_of_customer" placeholder="Customer Name" required>
+                        <input type="email" class="form-control mb-2" name="email_of_customer" placeholder="Email" required>
+                        <input type="text" class="form-control mb-2" name="contact_of_customer" placeholder="Contact" required>
+                        <input type="password" class="form-control mb-2" name="password_of_customer" placeholder="Password" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Sign up</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Login Here</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/login" method="POST">
+                    <div class="modal-body">
+                        <input type="email" class="form-control mb-2" name="email" placeholder="Email" required>
+                        <input type="password" class="form-control mb-2" name="password" placeholder="Password" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="loginModal2" tabindex="-1" aria-labelledby="loginModalLabel2" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel2">Login As A Customer Here:</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="/login_as_customer" method="POST">
+                    <div class="modal-body">
+                        <input type="email" class="form-control mb-2" name="email_of_customer" placeholder="Email" required>
+                        <input type="password" class="form-control mb-2" name="password_of_customer" placeholder="Password" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Login As Customer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
+</html>
