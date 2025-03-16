@@ -123,6 +123,14 @@ def home(email):
     car=list(cart.find({"customer":customerid}))
     owner=customer.find_one({"email":email})
     all_products = list(products.find({"owner_id":ObjectId(owner["_id"])}))
+    customerproducts=[]
+    totalprice=0
+    for items in car:
+        prod=products.find_one({"_id":items["product_id"]})
+        prod['quantity']=items['quantity']
+        prod['price']=prod['quantity']*prod['product_price']
+        totalprice+=prod['price']
+        customerproducts.append(prod)
     if "user" in session:
         print(owner["_id"], session["user"]["_id"])
         if ObjectId(owner["_id"])==ObjectId(session["user"]["_id"]):
@@ -131,7 +139,7 @@ def home(email):
             canaddproducts=False
     else:
         canaddproducts=False
-    return render_template('shop_home.html', products=all_products, canaddproducts=canaddproducts, cart=car)
+    return render_template('shop_home.html', products=all_products, canaddproducts=canaddproducts, cart=customerproducts, totalprice=totalprice)
 
 @app.route('/add_stock', methods=["POST"])
 def add_stock():

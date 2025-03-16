@@ -20,7 +20,9 @@
                 <button type="button" class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
                 <button type="button" class="btn btn-outline-light me-2" data-bs-toggle="modal" data-bs-target="#loginModal2">Login As Customer</button>
                 {% elif "user" in session and session["user"]["isowner"]==False %}
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">View cart (0)</button>
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    View cart ({{ cart|length }})
+                </button>
                 <a href="/logout" class="btn btn-danger">Logout</a>
                 {% else %}
                 <a href="/logout" class="btn btn-danger">Logout</a>
@@ -192,16 +194,30 @@
         </div>
     </div>
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-fullscreen">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Cart</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        hi
+        {% if cart|length <=0 %}
+                <p class="text-muted">Nothing in cart.</p>
+                {% else %}
+                    {% for carters in cart %}
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h3 class="card-title">{{ carters.get('product_name') }}</h3>
+                                <p class="card-text">Price: {{ carters.get('product_price') }}</p>
+                                <p class="card-text"><img src= "{{ carters.get('product_image')}}" style="width: 20vw; min-width: 20px;"></p>
+                                <p class="card-text">Quantity: {{ carters.get('quantity') }}</p>
+                                <h5>Total Price of item: {{ carters.get('price') }}</h5>
+                        </div>
+                            {% endfor %}
+                            {% endif %}
       </div>
       <div class="modal-footer">
+          <h1>Total Cost: {{totalprice}} </h1>
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary">Save changes</button>
       </div>
